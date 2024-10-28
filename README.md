@@ -1,7 +1,7 @@
 A C++ implementation of a ray tracing rendering engine based on [Nori](https://wjakob.github.io/nori/), originally developed for the [Advanced Computer Graphics](https://edu.epfl.ch/coursebook/en/advanced-computer-graphics-CS-440) course at EPFL and passed with 6/6.
 
-Final scene showcasing most of the features, rendered with volume rendering
-<img src="./results/project/Final_image/base3_alternate_2048samples_Edited.png" alt="Art">
+Final scene showcasing most of the features, rendered with volume rendering. [Uncompressed version](./results/project/Final_image/base3_alternate_2048samples_Edited.png)
+<img src="./results/project/Final_image/base3_alternate_2048samples_Edited_compressed.jpg" alt="Art">
 
 ## Main features
 - Volume rendering with multiple homogenous participating media
