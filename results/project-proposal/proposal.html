@@ -1,0 +1,113 @@
+**Final Project Proposal**
+
+Student name: Federico Stella
+
+Sciper number: 342796
+
+
+Scene description and motivation
+================================
+
+I interpret the theme "Change" in two opposite ways. On one side (darker), time inevitably passes and all things change, and I feel this through melancholy. On the other side (a bit brighter), it's only through change that something new can begin.
+
+<img src="Sketch-1.jpg" alt="Sketch">
+
+These very simple ideas led me to the rough sketch above, which is intended to be primarily viewed from left to right, as suggested by the god rays coming through the window. On the left, we have an old house, with old but well maintained furniture, and a table with 2 glasses filled with some liquid (yet to decide), signifying that the house is being maintained by two elderly people, grandparents. The more you move to the right, the more time has passed, and it's possible to notice a single pair of slippers, signifying that one of the two elderly people has finished their path in this world. More to the right, the furniture and floor look worse, with some ants on the ground, as the second person joins the first in another world. Finally, on the far right, boxes are portrayed, signifying a relocation. This hopefully creates a sense of sadness in the viewer, especially through the yellow god rays coming through the left, with an overall look inspired by Caravaggio's "Vocazione di san Matteo":
+
+<img src="Caravaggio.jpg" alt="Caravaggio">
+
+The passing of time is further signified by the clocks, which are oddly many. The clock on the left reads 6h, and the yellow light from the window suggests a sunset. The pendulum in the center reads 8h, the one on the floor reads 10h, and finally the one on the right reads 12h, midnight.
+
+However, the same scene can be re-read in a different key, and this is suggested by the painting on the right, with a sunny scene and kids playing. This painting will emit some light, in order to seem like it could either be a painting or a window. In this new light (quite literally), instead of moving out the old stuff in sadness, the right-most clock can signify noon, the peak of the day and of life, with the new family (children or grandchildren of the previous owners) moving in. The clock on the right further signifies this by being in a very modern style, as opposed to all the others.
+
+The clocks and ants are citations from Salvador Dali, in particular "The Persistence of Memory":
+
+<img src="Dali.jpg" alt="Dali">
+
+Moreover, environment lighting will be used to decrease the noise and contrast in the scene, and I will use a modern house for this lighting effect. As a consequence, modern details will be reflected through the glasses and liquids (and maybe a mirror) from the left side of the scene, showing an odd interaction that defies time, and that goes from the time of the right (which could be present or future) to the time of the elderly on the left (which could be past or present), and signifies the joy of the grandparents in seeing or imagining the lives of their children and grandchildren.
+
+
+Feature list
+============
+
+Using the table below, list the features you'll use to achieve your render, and how they are used.
+
+  * Include the point counts, they should add up to *80 points*.
+  * If your list of features adds up to more than 80 points, you must reduce the point count for the features of your choice until the total reaches 80 points exactly.
+
+<table>
+    <tr>
+        <th>Feature</th>
+        <th>Identifier</th>
+        <th>Standard point count</th>
+        <th>Adjusted point count</th>
+    </tr>
+    <tr>
+        <td>Textures</td>
+        <td>#XS-tex</td>
+        <td>10</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Normal mapping</td>
+        <td>#XS-mapping</td>
+        <td>5 (due to textures)</td>
+        <td>5</td>
+    </tr>
+    <tr>
+        <td>Depth of Field</td>
+        <td>#XS-DOF</td>
+        <td>10</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Rough conductors BRDF</td>
+        <td>#XS-extbsdf</td>
+        <td>10</td>
+        <td>5</td>
+    </tr>
+    <tr>
+        <td>Extra emitter - Directional light</td>
+        <td>#XS-extemi</td>
+        <td>10</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Image Based Lighting</td>
+        <td>#S-imglight</td>
+        <td>10 (due to Hacker points)</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Homogeneous Participating Media</td>
+        <td>#M-homomed</td>
+        <td>30</td>
+        <td>30</td>
+    </tr>
+    <tr>
+        <td colspan="2"><strong>Total</strong></td>
+        <td>85</td>
+        <td>80</td>
+    </tr>
+</table>
+
+Texture mapping will be extensively used for wooden parts, walls and the floor, along with normal mapping.
+
+Image based lighting will be used as the main light source except for the left window (which will use directional lighting), and also with an artistic meaning explained above.
+
+Homogeneous Participating Media will be used mainly for the god rays, but possibly also for the liquids in the glasses on the table.
+
+The additional BRDF (rough metals) will be used for the metallic materials in the scene.
+
+Depth of Field will be used to increase the realism of the shot and to concentrate the attention on the "present" (left) of the portrayed timeline.
+
+<!-- Slider -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../resources/jquery.event.move.js"></script>
+<script src="../resources/jquery.twentytwenty.js"></script>
+<link href="../resources/offcanvas.css" rel="stylesheet">
+<link href="../resources/twentytwenty.css" rel="stylesheet" type="text/css" />
+<script>var markdeepOptions = {onLoad: function() {$(".twentytwenty-container").twentytwenty({default_offset_pct: 0.5, move_slider_on_hover: true});} };</script>
+<!-- Markdeep: -->
+<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

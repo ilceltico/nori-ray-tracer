@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<test type="chi2test">
+	<integer name="resolution" value="15"/>
+
+	<!-- Test a few different configurations of the microfacet model -->
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.1"/>
+		<float name="intIOR" value="1.5"/>
+		<float name="extIOR" value="1.01"/>
+	</bsdf>
+
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.3"/>
+		<float name="intIOR" value="1.5"/>
+		<float name="extIOR" value="1.01"/>
+	</bsdf>
+
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.6"/>
+		<float name="intIOR" value="3.8"/>
+		<float name="extIOR" value="1.3"/>
+	</bsdf>
+
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.6"/>
+		<float name="intIOR" value="2.5"/>
+		<float name="extIOR" value="1.3"/>
+	</bsdf>
+
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.05"/>
+		<float name="intIOR" value="1.3"/>
+		<float name="extIOR" value="1.01"/>
+	</bsdf>
+
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.3"/>
+		<float name="intIOR" value="2.5"/>
+		<float name="extIOR" value="1.01"/>
+	</bsdf>
+
+	<bsdf type="microfacet_dielectric">
+		<float name="alpha" value="0.6"/>
+		<float name="intIOR" value="3.8"/>
+		<float name="extIOR" value="1.3"/>
+	</bsdf>
+
+</test>

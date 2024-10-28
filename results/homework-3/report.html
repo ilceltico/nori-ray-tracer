@@ -1,0 +1,163 @@
+**Homework 3**
+
+Student name: Federico Stella
+
+Sciper number: 342796
+
+Monte Carlo Sampling (60 pts)
+=============================
+
+For each of these sections, don't forget to include necessary derivations as well as screenshots of passing $\chi^2$ tests from the <tt>warptest</tt> executable.
+
+Tent
+----
+
+Here is the mathematical derivation
+
+<img src="derivation_tent.jpg" alt="Tent derivation">
+
+Here is the $\chi2$ test screenshot
+
+<img src="tent.png" alt="Tent chi2">
+
+Uniform disk
+------------
+Here is the mathematical derivation
+
+<img src="derivation_disk.jpg" alt="Disk derivation">
+
+Here is the $\chi2$ test screenshot
+
+<img src="disk.png" alt="Disk chi2">
+
+Uniform sphere
+--------------
+Here is the mathematical derivation
+
+<img src="derivation_sphere.jpg" alt="Sphere derivation">
+
+In the code, I simplified some formulas to avoid unnecessary trigonometric functions.
+
+Here is the $\chi2$ test screenshot
+
+<img src="uniform_sphere.png" alt="Uniform Sphere chi2">
+
+Uniform hemisphere
+------------------
+Here is the mathematical derivation
+
+<img src="derivation_hemisphere.jpg" alt="Hemisphere derivation">
+
+In the code, I simplified some formulas to avoid unnecessary trigonometric functions.
+
+Here is the $\chi2$ test screenshot
+
+<img src="uniform_hemisphere.png" alt="Uniform Hemisphere chi2">
+
+Cosine hemisphere
+-----------------
+Here is the mathematical derivation
+
+<img src="derivation_cos_hemisphere.jpg" alt="Cosine hemisphere derivation">
+
+In the code, I simplified some formulas to avoid unnecessary trigonometric functions.
+
+Here is the $\chi2$ test screenshot
+
+<img src="cosine_hemisphere.png" alt="Cosine Hemisphere chi2">
+
+Beckmann distribution
+---------------------
+Here is the mathematical derivation
+
+<img src="derivation_beckmann1.jpg" alt="Beckmann derivation 1">
+<img src="derivation_beckmann2.jpg" alt="Beckmann derivation 2">
+
+The logarithm can cause problems when the sample value is exactly 1. However, the random number generator has a range $[0,1)$, thus implement the check is not necessary.
+
+In the code, I simplified some formulas to avoid unnecessary trigonometric functions.
+
+Here is the $\chi2$ test screenshot for $\alpha = 0.1$
+
+<img src="beckmann_0.1.png" alt="Beckmann 0.1 chi2">
+
+Here is the $\chi2$ test screenshot for $\alpha = 0.5$
+
+<img src="beckmann_0.5.png" alt="Beckmann 0.5 chi2">
+
+Two simple rendering algorithms (40 pts)
+========================================
+
+Point lights
+------------
+
+Ajax bust illuminated by a point light source:
+<div class="twentytwenty-container">
+    <img src="ajax-simple-ref.png" alt="Reference">
+    <img src="ajax-simple.png" alt="Mine">
+</div>
+
+Note: Nori automatically generates both a `.exr` as well as an sRGB tonemapped `.png` image of your rendering that should directly used for the comparison above. Please still commit both versions in your `results/homework-X` folder.
+
+Ambient occlusion
+-----------------
+
+Ajax bust rendered using ambient occlusion:
+<div class="twentytwenty-container">
+    <img src="ajax-ao-ref.png" alt="Reference">
+    <img src="ajax-ao.png" alt="Mine">
+</div>
+
+Note: Nori automatically generates both a `.exr` as well as an sRGB tonemapped `.png` image of your rendering that should directly used for the comparison above. Please still commit both versions in your `results/homework-X` folder.
+
+
+Hacker Points: Hierarchical Sample Warping (20 points)
+========================================
+For this task I implemented a class named `Mipmap`, which builds a luminance Mipmap from an EXR file. The Mipmap is implemented as a `std::vector` of `MatrixXf`, where matrices have a progressively halved resolution. Another way to implement it would be by using a Quadtree.
+
+The file is assumed to be linearly encoded on the RGB space, which is also the assumption for the OpenEXR format. In case it's not, linearizing it is trivial.
+
+Luminance is computed using the standard luminance formula for RGB values, and is normalized to 1 afterwards:
+$$ Y = R * 0.2126 + G * 0.7152 + B * 0.0722 $$
+
+The PDF of a point can be easily computed in constant time by checking the position of the point in the image, thus retrieving the corresponding pixel's normalized luminance.
+
+The inverse CDF, instead, has logarithmic complexity in input resolution, as all the luminance maps need to be checked, and their number corresponds to the base-2 logarithm of the input resolution. At each step and for each axis, we are dealing with 2 uniform distributions with different lenghts. The input is a random sample $\in [0,1)$, which is remapped to the same domain based on a simple threshold depending on the luminance on the pixels of such axis (thus determining the length of a segment), and is passed to the more refined luminance map that repeats this step. The procedure is carried out iteratively, storing displacement values, instead of recursively.
+
+Here is a screenshot of the $\chi2$ test for the `2x2` example. For the other histograms, the default test uses 1000 samples per bin, with 51x51 bins, for a total of around 2.6M samples. For this histogram around 10.5M samples were used, 10 samples per bin with 1024x1024 bins. This is not particularly useful here, but it certainly is for the actual light probe.
+
+<img src="HSW_test.png" alt="HSW test chi2">
+
+Here is a not-too-spiky lightprobe found on this website: http://dativ.at/lightprobes/
+
+<img src="20060430-01_lp.png" alt="Light probe">
+
+Here is a screenshot of the $\chi2$ test for such light probe
+
+<img src="HSW_lightProbe.png" alt="HSW light probe chi2">
+
+Feedback
+========
+
+We would appreciate any comments or criticism to improve the projects in future years--naturally, this part will not be graded. Examples of information that is useful to us includes:
+
+* How much time did you spend on the assignment? How was it divided between designing, coding, and testing?
+    
+    *Around 3 days, including the report. A significant amount of the time was spent, unfortunately, on compilation problems. The implementations themselves were not particularly difficult.*
+
+* What advice should we have given you before you started?
+* What was hard or surprising about the assignment?
+* What did you like or dislike? What else would you change?
+    
+    *Very fun as usual. Seeing a renderer take shape is, quite obviously, amazing.*
+
+<!-- Slider -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../resources/jquery.event.move.js"></script>
+<script src="../resources/jquery.twentytwenty.js"></script>
+<link href="../resources/offcanvas.css" rel="stylesheet">
+<link href="../resources/twentytwenty.css" rel="stylesheet" type="text/css" />
+<script>var markdeepOptions = {onLoad: function() {$(".twentytwenty-container").twentytwenty({default_offset_pct: 0.5, move_slider_on_hover: true});} };</script>
+<!-- Markdeep: -->
+<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

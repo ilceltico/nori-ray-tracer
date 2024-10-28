@@ -1,0 +1,447 @@
+**Final Project Report**
+
+Student name: Federico Stella
+
+Sciper number: 342796
+
+
+Final render
+============
+
+Here is the rendering I presented at the final competition. The corresponding EXR is in the `Final_image` subfolder.
+
+It has been rendered with a 17mm APS-C equivalent lens, 1440x810p, 16384 samples per pixel, taking around 5 hours on an Apple M1 Pro.
+
+<img src="Final_image/base3_16384samples_Edited1.png" alt="Final render">
+
+Here is a comparison of it against its non-tonempapped version.
+
+<div class="twentytwenty-container">
+    <img src="Final_image/base3_16384samples_Edited1.png" alt="Colorcorrected">
+    <img src="Final_image/base3_16384samples.png" alt="Original">
+</div>
+
+Unfortunately I couldn't finish the Volumetric Rendering feature in time for the competition, as a result my final rendering does not use it.
+
+After completing the feature (and changing some of the normal maps), I re-rendered the final image, so here is a comparison between the submission one and the volumetric one. The effect is really cool, but it changes the light balance in the scene. I would have to re-compose some parts of it and change the light orientation (and also tune the fog parameters a bit), but it's a nice comparison.
+
+<div class="twentytwenty-container">
+    <img src="Final_image/base3_16384samples_Edited1.png" alt="Competition">
+    <img src="Final_image/base3_512samples_Edited_volumetric.png" alt="Volumetric">
+</div>
+
+Motivation
+==========
+
+I didn't have a specific source of inspiration for my final rendering, so I drew a sketch of the idea I had in mind.
+
+<img src="Final_image/Sketch-1.jpg" alt="Sketch">
+
+After sketching the first part of it, and having already in mind the god rays that go from left to right, I recalled this painting by Caravaggio, called "La Vocazione", which served an inspiration for the lighting of the scene.
+
+<img src="Final_image/Caravaggio.jpg" alt="Caravaggio">
+
+Since the sketch is quite rough and just intended as a scene setup for myself, I will explain my thoughts directly through the final image, so please refer to it while reading the following.
+
+Since I am quite a melancholic person, I interpret change - especially the inevitable change - as sad and melancholic. To express this, I thought about my grandparents and the passing of time. The picture clearly shows the interior of a house with old style and consumed furniture (*floor, furniture and chessboard are microfacet, texture mapped and normal mapped*), so a "typical" grandparents' house, with objects suggesting that they still live there (*chess pieces are rough dielectrics and rough metals*). The light enters from the left (*directional light*) and covers most of the image, suggesting a reading direction from left to right, and it's a sunset light both in color and inclination, with the time on the center clock being around 9pm. However, the image gets darker towards the right side, and the clock on the right, which is in a much more modern style, reads 12, so midnight. This indicates the passing of time, and the fact that, one day, the grandparents will inevitably pass away. The left side of the image is the present, because it's *in focus*. When they will pass, there is usually a very sad period of time in which their children will slowly move out some (or most) of the old stuff. This period of time is shown in the "future" part of the image, so the right, with the boxes.
+
+This extremely sad reading, though, is not the only possible reading of the image. In fact, there is a strange light coming from the framed picture hanging on the right wall. Actually, what is it? A framed picture? A TV? In fact, it's a window (*texured light*) on a bright and sunny day, with kids playing outside. Under this consideration, the clock on the right is actually noon, and represents another interpretation for the future, a much happier one, in which the family of one of the children of the grandparents is moving in with the boxes, and with happy kids. The modern clock serves as another clue for this interpretation. The clock, along with the door and the *environment map* that illuminates the scene from behind the camera, show a much more modern style, foreseeing the future of the new family, in a picture that can now be read as a melancholic remembrance of the old times when the grandparents were alive.
+
+Moreover, the reflections from the modern lights can be seen on all the dielectrics and metals on the left of the image, signifying that the grandparents can already foresee, in their present, the happy future lives of their children.
+
+The image and the main theme "change" have a double interpretation: a sad ending but a happy new beginning.
+
+
+Feature list
+============
+
+<table>
+    <tr>
+        <th>Feature</th>
+        <th>Identifier</th>
+        <th>Standard point count</th>
+        <th>Adjusted point count</th>
+    </tr>
+    <tr>
+        <td>Textures</td>
+        <td>#XS-tex</td>
+        <td>10</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Normal mapping</td>
+        <td>#XS-mapping</td>
+        <td>5 (due to textures)</td>
+        <td>5</td>
+    </tr>
+    <tr>
+        <td>Depth of Field</td>
+        <td>#XS-DOF</td>
+        <td>10</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Rough conductors BRDF</td>
+        <td>#XS-extbsdf</td>
+        <td>10</td>
+        <td>5</td>
+    </tr>
+    <tr>
+        <td>Extra emitter - Directional light</td>
+        <td>#XS-extemi</td>
+        <td>10</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Image Based Lighting</td>
+        <td>#S-imglight</td>
+        <td>10 (due to Hacker points)</td>
+        <td>10</td>
+    </tr>
+    <tr>
+        <td>Homogeneous Participating Media</td>
+        <td>#M-homomed</td>
+        <td>30</td>
+        <td>30</td>
+    </tr>
+    <tr>
+        <td colspan="2"><strong>Total</strong></td>
+        <td>85</td>
+        <td>80</td>
+    </tr>
+</table>
+
+
+
+Texture Mapping
+=========
+
+I created a common interface to accomodate potentially different types of maps, and implemented a `ConstantTexture` type (which falls back to the previous Nori mechanisms of constant parameters throughout the mesh) and a `BitmapTexture` type, which loads an EXR file and maps a parameter to the values in the file using bilinear interpolation and texture repetition. Selected BRDFs (such as Diffuse and Microfacet) accept a `texture` XML tag specifying the texture to be loaded for their parameters. This mechanism can be potentially used for any parameters in any of the BRDFs, but I was interested in it only for the albedo. Moreover, I also added this possibility to Emitters, so that they can emit light according to a texture map.
+
+I also added 3 useful paremeters to the `texture` tag. `scale_u` and `scale_v` enable scaling the texture "size" in each dimension in the object to which it is associated to. It was useful to set the size of floor tiles for the final image. `scale_channels` enables scaling the texture values, for example useful to set the right albedo on the table and the floor without re-exporting the texture map.
+
+To validate my feature, here is a comparison against Mitsuba 3 on a complex object. Mitsuba is on the left.
+
+More images with different objects, lights, materials and integrators are available in the folder `4.textures`. For all comparisons, TEV shows 0 mean error.
+
+<div class="twentytwenty-container">
+    <img src="4.textures/1/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="4.textures/1/cbox_mis_128samples.png" alt="Mine">
+</div>
+
+
+Normal Mapping
+=========
+
+Normal maps behave similarly to texture maps in principle, but: they perturb the local reference frame of the surface instead of just some parameter of the material, so they should be applicable to every material out-of-the-box; they require tangent and bitangent directions.
+
+For the second point, at mesh loading time I also pre-compute these vectors if the BSDF of the object requires them, which can be simply checked with a method call.
+
+For the first point, I implemented a super-BSDF called `normalmap`, which can have any BSDF as a nested component. A normalmap contains a texture, defined above, to retrieve the mapping information. Since it uses a texture, the texture parameters mentioned in the section above can also be used, as a well as a constant texture if one wants. The mechanism is straightfoward: when a ray intersects a mesh, the normalmap BSDF will evaluate/sample/pdf the needed information taking into account a perturbed local reference frame. Due to how Nori expects information from BSDF methods, a cosine substitution had to be performed in the eval method, which wastes computation but avoids breaking the interface.
+
+To validate my feature, here is a comparison against Mitsuba 3 on a simple object. Mitsuba is on the left.
+
+More images with different maps and integrators are available in the folder `5.normals`. For all comparisons, TEV shows 0 mean error.
+
+<div class="twentytwenty-container">
+    <img src="5.normals/1/cbox_mitsuba_norm.png" alt="Mitsuba">
+    <img src="5.normals/1/cbox_mis_norm_128samples.png" alt="Mine">
+</div>
+
+Normal map + texture map:
+
+<div class="twentytwenty-container">
+    <img src="5.normals/2/cbox_mitsuba_texnorm.png" alt="Mitsuba">
+    <img src="5.normals/2/cbox_mis_texnorm_128samples.png" alt="Mine">
+</div>
+
+
+Depth of Field
+=========
+
+I implemented a different camera than the usual `perspective`, called `thinlens`. To do it, I followed PBRTv3 simple explanations and sampled points on the thin lens model in order to shoot rays to the image.
+
+In addition to the usual camera parameters, thinlens also accepts `focus_distance` and `aperture_radius`, which are used to set respectively the focus point of the camera and depth of its field.
+
+Here is a comparison to Mitsuba 3, which is on the left, achieving 0 mean error on TEV. EXR files are available in the folder `6.dof`.
+
+<div class="twentytwenty-container">
+    <img src="6.dof/cbox_mitsuba2.png" alt="Mitsuba">
+    <img src="6.dof/cbox_mis2_512samples.png" alt="Mine">
+</div>
+
+Here is the impact of the `aperture_radius` parameter.
+
+<div class="twentytwenty-container">
+    <img src="6.dof/cbox_mis2_512samples.png" alt="0.2">
+    <img src="6.dof/cbox_mis3_512samples.png" alt="0.1">
+</div>
+
+
+Rough Conductors
+=========
+
+Since I had already implemented rough dielectrics during the last course assignment, the BSDF-related part of rough conductors was almost the same, without the refraction component. What changes are the Fresnel equations and the spectrally-varying and complex-valued indices of refraction. The BSDF accepts user-specified and single-valued parameters for the real and imaginary part of the index of refraction (on top of the usual alpha for rough materials), allowing the user to play with the roughness and the amount of reflection from the object. This is the way I used it in the final rendering, with the black chess pieces being made of rough metal with parameters specified by me. However the BSDF also accepts filenames to retrieve the coefficients and integrate them PBRT-style to compute RGB values for the Fresnel equations for conductors. All these parts are implemented in `common.cpp`, including the Fresnel equations for conductors, whereas the BSDF is implemented in `microfacet_conductor`.
+
+Here are comparisons with Mitsuba 3 with different parameters, all achieving 0 mean error on TEV. Mitsuba is on the left. EXR files are available in the folder `7.roughconductors`.
+
+User-specified parameters, roughness 0.1
+
+<div class="twentytwenty-container">
+    <img src="7.roughconductors/cbox_mitsuba_user0.1.png" alt="Mitsuba">
+    <img src="7.roughconductors/cbox_mis_256samples_user0.1.png" alt="Mine">
+</div>
+
+User-specified parameters, roughness 0.3
+
+<div class="twentytwenty-container">
+    <img src="7.roughconductors/cbox_mitsuba_user0.3.png" alt="Mitsuba">
+    <img src="7.roughconductors/cbox_mis_256samples_user0.3.png" alt="Mine">
+</div>
+
+Copper, roughness 0.1
+
+<div class="twentytwenty-container">
+    <img src="7.roughconductors/cbox_mitsuba_Cu0.1.png" alt="Mitsuba">
+    <img src="7.roughconductors/cbox_mis_256samples_Cu0.1.png" alt="Mine">
+</div>
+
+Copper, roughness 0.3
+
+<div class="twentytwenty-container">
+    <img src="7.roughconductors/cbox_mitsuba_Cu0.3.png" alt="Mitsuba">
+    <img src="7.roughconductors/cbox_mis_256samples_Cu0.3.png" alt="Mine">
+</div>
+
+Gold, roughness 0.1
+
+<div class="twentytwenty-container">
+    <img src="7.roughconductors/cbox_mitsuba_Au0.1.png" alt="Mitsuba">
+    <img src="7.roughconductors/cbox_mis_256samples_Au0.1.png" alt="Mine">
+</div>
+
+Gold, roughness 0.3
+
+<div class="twentytwenty-container">
+    <img src="7.roughconductors/cbox_mitsuba_Au0.3.png" alt="Mitsuba">
+    <img src="7.roughconductors/cbox_mis_256samples_Au0.3.png" alt="Mine">
+</div>
+
+The BSDF was also succesfully tested using the file `chi2test-microfacet_conductor.xml`.
+
+<img src="7.roughconductors/Screenshot 2023-06-09 at 16.44.26.png" alt="Validation">
+
+
+Directional Light
+=========
+
+I implemented directional lights in the file `directional.cpp`, as a subclass of `Emitter`, following PBRTv3 explanations. The file is quite simple, but hides some technical challenges under the hood. Since the directional light is located at "infinity", the emitter pre-processes the scene to set the outer bounds. During the sampling process, a point on the imaginary emitting surface is returned such that the direction between the point that requested illumination and the imaginary emitting point is in fact the direction of the directional light. Extra care had to be taken for two things. First, directional lights do not decrease their emission with distance, so just like in normal maps I had to do waste some computation for cosine substitution, here I do the same with the distance, avoiding to break the interface with Nori. Emitters now also have other utility methods that are useful for Next Event Estimation and Multiple Importance Sampling, to determine if and how they can be hit: this will be useful also for Image Based Lighting. Second, since rays from the directional light are coming from outside the bounding box of the scene, the Epsilon of such rays can behave wrongly, causing light leaks in the angles of the cbox. To account for this and avoid the leaks, the Epsilon of the ray is set by the Emitters now, and it is re-normalized when dealing with distant sources.
+
+As parameters, the user can set the irradiance and the direction.
+
+Here is a comparison to Mitsuba 3, which is on the left, achieving 0 mean error on TEV. EXR files are available in the folder `8.directional`.
+
+<div class="twentytwenty-container">
+    <img src="8.directional/cbox_mitsuba2.png" alt="Mitsuba">
+    <img src="8.directional/cbox_mis_128samples.png" alt="Mine">
+</div>
+
+Notice that there are no light leaks in the angles.
+
+Notice also that the dielectric does not seem to let the light through, in both renderers. This is normal, and due to the directional light being impossible to hit with the material sampling part of the integrator, whereas the dielectric does not get contributions from the emitter sampling part of the integrators. This behavior does not happen with rough dielectrics, which do get contributions from emitter sampling, and in fact the rough dielectrics in my final image interact properly with the directional light.
+
+Image Based Lighting
+=========
+
+I implemented image based lighting in `envmap.cpp`. This file follows the new interfaces and utility methods created for directional lights, and also determines the correct Epsilon and corrects the sampled emission with distance, just like for directional lights.
+
+At parsing time, the specified EXR file is loaded and a MipMap is created, following the implementation made for assignment 3. This is used for hierarchical sampling based on image luminance values, and has been already proven to work during that assignment. In the XML it's also possible to set a power scale for the light, as well as the horizontal rotation angle in degress, which was very useful for the final scene to set the environment lighting right without having to re-export the envmap file. 
+
+Here are multiple comparisons to Mitsuba 3, which is on the left, achieving 0 mean error on TEV. EXR files are available in the folder `9.envmap`.
+
+The cbox is in diffuse material, the left sphere is a perfect dielectric and the right one is a rough conductor. This shows that the environment maps have been correctly implemented under all situations.
+
+Mitsuba vs material sampling:
+
+<div class="twentytwenty-container">
+    <img src="9.envmaps/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="9.envmaps/cbox_mats_1024samples.png" alt="Mine">
+</div>
+
+Mitsuba vs emitter sampling:
+
+<div class="twentytwenty-container">
+    <img src="9.envmaps/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="9.envmaps/cbox_ems_1024samples.png" alt="Mine">
+</div>
+
+Mitsuba vs multiple importance sampling:
+
+<div class="twentytwenty-container">
+    <img src="9.envmaps/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="9.envmaps/cbox_mis_1024samples.png" alt="Mine">
+</div>
+
+Showcasing the horizontal rotation feature:
+
+<div class="twentytwenty-container">
+    <img src="9.envmaps/cbox_mis_1024samples.png" alt="Mitsuba">
+    <img src="9.envmaps/cbox_mis_2deg_1024samples.png" alt="Mine">
+</div>
+
+
+Homogeneous Participating Media
+=========
+
+Given the feature requirements in the feature PDF file, I subdivided this section accordingly following my implementation order. All EXR files can be found in `10.homogeneous`.
+
+Interfaces and XML
+--------------------------------
+I created a new interface called `Medium`, which I specialized for homogeneous media in `homogeneous.cpp`. This interface exposes the necessary functions and contains a `PhaseFunction` object. A medium can be declared in the XML file inside any mesh. To support multiple mediums, one can declare both internal and external media in every mesh desired. This opens to potentially wrong behaviors if the user sets the media inconsistently, but I assume the user knows how to set them. Moreover, it's possible to declare a medium in the scene tag, without an associated object. This medium permeates the whole scene. One can still set other media in the scene using meshes, as well as defining medium-free regions by setting null media when desired. Homogeneous media, in addition to the phase function, also load the scattering and absorption coefficients from the XML.
+
+In order to support changes in media with no associated BSDF, I created a Null BSDF in `null.cpp`, which simply lets all the rays pass through and behaves as a Dirac's delta just like Mirrors and Dielectrics. It fits correctly with the previous integrators without them knowing, whereas the volumetric integrators are aware of it, specifically the Volumetric EMS and MIS ones, as they need to ignore it when sampling a light source, without ignoring the media.
+
+Henyey-Greenstein phase function
+--------------------------------
+`hg.cpp` implements the Henyey-Greenstein phase function, specializing the PhaseFunction interface and following PBRTv3 implementation. To validate it, I've run the Warptest with multiple `g` values and incident ray directions.
+
+`g = 0, angle = 0 deg`
+
+<img src="10.homogeneous/1.hg/0 0.png" alt="Validation">
+
+`g = 0, angle = 51.1 deg`
+
+<img src="10.homogeneous/1.hg/0 51.1.png" alt="Validation">
+
+`g = 0.5, angle = 0 deg`
+
+<img src="10.homogeneous/1.hg/0.5 0.png" alt="Validation">
+
+`g = 0.5, angle = 51.1 deg`
+
+<img src="10.homogeneous/1.hg/0.5 51.1.png" alt="Validation">
+
+`g = 0.9, angle = 0 deg`
+
+<img src="10.homogeneous/1.hg/0.9 0.png" alt="Validation">
+
+`g = 0.9, angle = 51.1 deg`
+
+<img src="10.homogeneous/1.hg/0.9 51.1.png" alt="Validation">
+
+
+Phase-function sampling
+--------------------------------
+Phase-function (+ material) sampling is useful as a starting point, because it is easy to implement and allows for debugging of the interfaces and classes developed in the previous sections. I implemented the volumetric version of the `mats` integrator in `vol_path_mats.cpp`. This integrator traces rays from the camera model and scatters them when it encounters surfaces or when it samples a medium point. It already supports multiple media, as well as scene-media, and all of the features implemented in the previous sections.
+
+Mitsuba is on the left, all comparisons achieve 0 mean error in TEV. Due to the noisiness of this integrator, the number of samples for images on the right is sometimes quite higher wrt the ones on the left.
+
+Null BSDF with internal medium
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/2.mats/1/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/2.mats/1/cbox_mats3_1024samples.png" alt="Mine">
+</div>
+
+Scene medium + multiple media: no medium in the "dome", different medium in the left sphere, blueish medium under it.
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/2.mats/2/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/2.mats/2/cbox_mats_8192samples.png" alt="Mine">
+</div>
+
+Null BSDF with internal medium + environment map
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/2.mats/3/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/2.mats/3/cbox_mats_128samples.png" alt="Mine">
+</div>
+
+Next-event estimation
+--------------------------------
+To validate this, I implemented a volumetric version of the `ems` intergrator in `vol_path_ems.cpp`. The difficulties in this intergrator are in sampling light sources and let the light go through the different media while accounting for transmittance, and the proper handling of specular surfaces with the behavior of the Null BSDF, while still supporting all the features of the previous sections.
+
+To validate it, I show comparisons with Mitsuba (on the left) using multiple materials (diffuse, nulls, dielectrics) and also showing some of the previous features working properly in the volumetric integrator. All comparisons achieve 0 mean error in TEV.
+
+Null BSDF with internal medium
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/3.ems/1/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/3.ems/1/cbox_ems3_512samples.png" alt="Mine">
+</div>
+
+Scene medium + multiple media: no medium in the "dome", different medium in the left sphere, blueish medium under it.
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/3.ems/2/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/3.ems/2/cbox_ems_512samples.png" alt="Mine">
+</div>
+
+Null BSDF with internal medium + environment map
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/3.ems/3/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/3.ems/3/cbox_ems_128samples.png" alt="Mine">
+</div>
+
+Null BSDF with internal medium + directional light
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/3.ems/4/cbox_mitsuba2.png" alt="Mitsuba">
+    <img src="10.homogeneous/3.ems/4/cbox_ems_128samples.png" alt="Mine">
+</div>
+
+Please note that the lower noise in Mitsuba is mainly thanks to MIS and the `minimum bounces` parameter being set to higher values in Mitsuba, but it does not affect the correctness.
+
+
+Multiple importance sampling
+--------------------------------
+Finally, I implemented a MIS integrator in `vol_path_mis`. I complicated my life quite a bit in the handling of next events and the Null BSDF, but I am happy with the results. I tested the mats part of it by setting the related weights to 1 and the ems weights to 0, then viceversa, and when they were both working perfectly I enabled the MIS-related contribution weighting. As well as the others, this integrator supports all the features described in this report.
+
+To validate it, I show comparisons with Mitsuba (on the left) using multiple materials (diffuse, nulls, dielectrics) and also showing some of the previous features working properly in the volumetric integrator. All comparisons achieve 0 mean error in TEV.
+
+Null BSDF with internal medium
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/4.mis/1/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/4.mis/1/cbox_mis_512samples.png" alt="Mine">
+</div>
+
+Scene medium + multiple media: no medium in the "dome", different medium in the left sphere, blueish medium under it.
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/4.mis/2/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/4.mis/2/cbox_mis_512samples.png" alt="Mine">
+</div>
+
+Null BSDF with internal medium + environment map
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/4.mis/3/cbox_mitsuba.png" alt="Mitsuba">
+    <img src="10.homogeneous/4.mis/3/cbox_mis_128samples.png" alt="Mine">
+</div>
+
+Null BSDF with internal medium + directional light
+
+<div class="twentytwenty-container">
+    <img src="10.homogeneous/4.mis/4/cbox_mitsuba2.png" alt="Mitsuba">
+    <img src="10.homogeneous/4.mis/4/cbox_mis_128samples.png" alt="Mine">
+</div>
+
+Please note that the lower noise in Mitsuba, especially visible in the first and second image of this subsection, is mainly due to the `minimum bounces` parameter being set to higher values in Mitsuba, but it does not affect the correctness.
+
+Feedback
+========
+
+A ton of work, but an amazing and exciting learning experience!
+
+<!-- Slider -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../resources/jquery.event.move.js"></script>
+<script src="../resources/jquery.twentytwenty.js"></script>
+<link href="../resources/offcanvas.css" rel="stylesheet">
+<link href="../resources/twentytwenty.css" rel="stylesheet" type="text/css" />
+<script>var markdeepOptions = {onLoad: function() {$(".twentytwenty-container").twentytwenty({default_offset_pct: 0.5, move_slider_on_hover: true});} };</script>
+<!-- Markdeep: -->
+<script src="https://morgan3d.github.io/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
